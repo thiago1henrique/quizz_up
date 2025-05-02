@@ -1,12 +1,11 @@
 import './App.css'
+import Splash from "./Splash.tsx";
 
 function App() {
 
   return (
     <>
-      <div className='w-dvw h-dvh flex items-center justify-center bg-red-600'>
-        <span>teste div</span>
-      </div>
+      <Splash/>
     </>
   )
 }
