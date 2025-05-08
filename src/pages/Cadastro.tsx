@@ -29,7 +29,7 @@ const Cadastro = () => {
     return (
         <section className='flex w-full h-dvh'>
             <div className='flex justify-center flex-col w-full h-full pl-44'>
-                <h2 className='text-7xl font-bold'>Faça seu cadastro</h2>
+                <h2 className='text-7xl font-bold' style={{fontFamily: '"Jersey 10"'}}>Faça seu cadastro</h2>
                 <p className='text-2xl leading-10'>Para proseguir para a plataforma!</p>
 
                 <div className='mt-10'>
