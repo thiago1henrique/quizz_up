@@ -21,11 +21,12 @@ const Inputs = ({
         <div className="relative mt-6">
             <input
                 id={id}
-                className={`peer w-full max-w-[600px] py-4 pl-4 border-2 border-[#16161d] rounded-2xl placeholder-transparent focus:outline-none ${classname}`}
+                className={`peer w-full max-w-[600px] py-4 pl-4 border-2 bg-[#f5f5f5]
+                 border-[#16161d] rounded-2xl placeholder-transparent focus:outline-none ${classname}`}
                 type={type}
                 placeholder={placeholder}
                 value={value}
-                onChange={onChange} // Esta linha é crucial
+                onChange={onChange}
             />
             <label
                 htmlFor={id}

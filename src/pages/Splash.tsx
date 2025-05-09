@@ -17,7 +17,7 @@ const colors = [
 const Splash = () => {
     return (
         <section className='flex w-full h-dvh px-4 py-4 sm:py-0 sm:px-0'>
-            <div className='flex items-center justify-center flex-col w-full h-full'>
+            <div className='flex items-center justify-center flex-col sm:w-1/2 h-full'>
 
                 <div className={"h-full sm:h-auto flex items-center justify-center flex-col w-full"}>
                     <h2 className='text-7xl text-center sm:text-left sm:text-7xl font-bold'
