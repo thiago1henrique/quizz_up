@@ -19,21 +19,20 @@ const Login = () => {
 
     const handleLogin = () => {
         alert('Login realizado com: ' + formData.email);
-
     };
 
     const isFormValid = formData.email.trim() !== '' && formData.password.trim() !== '';
 
     return (
         <section className='flex w-full h-dvh px-4 sm:px-0'>
-            <div className='flex justify-center flex-col items-center sm:items-start sm:w-1/2 h-full sm:pl-44'>
-                <h2 className='text-7xl font-bold' style={{fontFamily: '"Jersey 10"'}}>Faça seu login</h2>
+            <div className='flex justify-center flex-col items-center sm:pr-4 sm:items-start sm:w-1/2 h-full sm:pl-44'>
+                <h2 className='text-7xl font-bold text-center sm:text-start' style={{fontFamily: '"Jersey 10"'}}>Faça seu login</h2>
                 <p className='text-2xl leading-10'>Para proseguir para a plataforma!</p>
                 <p>Não tem uma conta? <Link to={"/Cadastro"} className={"font-bold"}>Crie uma</Link></p>
 
-
-                <div className='mt-10 w-full'>
+                <div className='mt-10'>
                     <Inputs
+                        id="email"
                         label='Email'
                         type='email'
                         placeholder='Insira seu email'
@@ -41,6 +40,7 @@ const Login = () => {
                         onChange={handleChange}
                     />
                     <Inputs
+                        id="password"
                         label='Senha'
                         type='password'
                         placeholder='Insira sua senha'

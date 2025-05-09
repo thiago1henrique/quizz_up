@@ -1,5 +1,6 @@
 import Button from "../Components/Button.tsx";
 import {Link} from 'react-router-dom';
+import { motion } from 'framer-motion';
 
 const quizz = ['Q', 'u', 'i', 'z', 'z', ' ', 'U', 'p'];
 
@@ -14,6 +15,17 @@ const colors = [
     '#8A33FF'
 ];
 
+const staggeredBounce = (index: number) => ({
+    y: [0, -20, 0],
+    transition: {
+        delay: index * 0.1,
+        duration: 0.5,
+        repeat: Infinity,
+        repeatDelay: 1,
+        ease: "easeOut"
+    }
+});
+
 const Splash = () => {
     return (
         <section className='flex w-full h-dvh px-4 py-4 sm:py-0 sm:px-0'>
@@ -21,13 +33,21 @@ const Splash = () => {
 
                 <div className={"h-full sm:h-auto flex items-center justify-center flex-col w-full"}>
                     <h2 className='text-7xl text-center sm:text-left sm:text-7xl font-bold'
-                        style={{fontFamily: '"Jersey 10"'}}>Bem vindo ao {quizz.map((letter, index) => (
-                        <span key={index} style={{color: colors[index % colors.length]}}>{letter}</span>
-                    ))}</h2>
+                        style={{fontFamily: '"Jersey 10"'}}>
+                        Bem vindo ao {' '}
+                        {quizz.map((letter, index) => (
+                            <motion.span
+                                key={index}
+                                style={{color: colors[index % colors.length], display: 'inline-block'}}
+                                animate={staggeredBounce(index)}
+                            >
+                                {letter}
+                            </motion.span>
+                        ))}
+                    </h2>
                     <p className='text-2xl text-center py-6 sm:text-2xl sm:text-left sm:py-4'>
                         Aprender ficou mais fácil do que você imagina!
                     </p>
-
                 </div>
 
                 <div className='flex flex-col gap-4 h-1/4 sm:h-auto py-4'>
