@@ -1,6 +1,6 @@
 interface btnProps {
     title: string;
-    onClick: () => void;
+    onClick?: () => void;
     disabled?: boolean;
 }
 

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import Inputs from "../Components/Inputs.tsx";
 import Button from "../Components/Button.tsx";
+import {Link} from "react-router-dom";
 
 const Cadastro = () => {
     const [formData, setFormData] = useState({
@@ -28,9 +29,10 @@ const Cadastro = () => {
 
     return (
         <section className='flex w-full h-dvh'>
-            <div className='flex justify-center flex-col w-full h-full pl-44'>
-                <h2 className='text-7xl font-bold'>Faça seu cadastro</h2>
+            <div className='flex justify-center items-center sm:items-start flex-col w-full h-full sm:pl-44'>
+                <h2 className='text-7xl font-bold text-center' style={{fontFamily: '"Jersey 10"'}}>Faça seu cadastro</h2>
                 <p className='text-2xl leading-10'>Para proseguir para a plataforma!</p>
+                <p>Já tem uma conta? <Link to={"/Login"} className={"font-bold"}>Logue aqui</Link></p>
 
                 <div className='mt-10'>
                     <Inputs
@@ -70,7 +72,7 @@ const Cadastro = () => {
                     </div>
                 </div>
             </div>
-            <div className='w-1/2 h-full'>
+            <div className='w-1/2 h-full hidden sm:block'>
                 <img
                     src="https://blog.pango.education/hubfs/Coding%20Blog%20Image.jpg"
                     className='w-full h-full object-cover pointer-events-none'
