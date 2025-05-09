@@ -25,14 +25,14 @@ const Login = () => {
     const isFormValid = formData.email.trim() !== '' && formData.password.trim() !== '';
 
     return (
-        <section className='flex w-full h-dvh'>
-            <div className='flex justify-center flex-col items-center sm:items-start w-full h-full sm:pl-44'>
+        <section className='flex w-full h-dvh px-4 sm:px-0'>
+            <div className='flex justify-center flex-col items-center sm:items-start sm:w-1/2 h-full sm:pl-44'>
                 <h2 className='text-7xl font-bold' style={{fontFamily: '"Jersey 10"'}}>Faça seu login</h2>
                 <p className='text-2xl leading-10'>Para proseguir para a plataforma!</p>
                 <p>Não tem uma conta? <Link to={"/Cadastro"} className={"font-bold"}>Crie uma</Link></p>
 
 
-                <div className='mt-10'>
+                <div className='mt-10 w-full'>
                     <Inputs
                         label='Email'
                         type='email'
@@ -48,7 +48,7 @@ const Login = () => {
                         onChange={handleChange}
                     />
 
-                    <div className='mt-10'>
+                    <div className='mt-10 flex justify-center sm:justify-start'>
                         <Button
                             title={'Login'}
                             onClick={handleLogin}

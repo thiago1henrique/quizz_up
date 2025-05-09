@@ -28,13 +28,13 @@ const Cadastro = () => {
         formData.acceptedTerms;
 
     return (
-        <section className='flex w-full h-dvh'>
-            <div className='flex justify-center items-center sm:items-start flex-col w-full h-full sm:pl-44'>
+        <section className='flex w-full h-dvh px-4 sm:px-0'>
+            <div className='flex justify-center items-center sm:items-start flex-col sm:w-1/2 h-full sm:pl-44'>
                 <h2 className='text-7xl font-bold text-center' style={{fontFamily: '"Jersey 10"'}}>Faça seu cadastro</h2>
                 <p className='text-2xl leading-10'>Para proseguir para a plataforma!</p>
                 <p>Já tem uma conta? <Link to={"/Login"} className={"font-bold"}>Logue aqui</Link></p>
 
-                <div className='mt-10'>
+                <div className='mt-10 w-full'>
                     <Inputs
                         label='Email'
                         type='email'
@@ -63,7 +63,7 @@ const Cadastro = () => {
                         <span>Aceito termos da plataforma</span>
                     </div>
 
-                    <div className='mt-10'>
+                    <div className='mt-10 flex justify-center sm:justify-start'>
                         <Button
                             title='Cadastrar'
                             onClick={handleSubmit}
