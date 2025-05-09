@@ -9,6 +9,7 @@ const Cadastro = () => {
         password: '',
         acceptedTerms: false
     });
+    const [passwordError, setPasswordError] = useState('');
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { id, value, type, checked } = e.target;
@@ -16,25 +17,48 @@ const Cadastro = () => {
             ...prev,
             [id]: type === 'checkbox' ? checked : value
         }));
+
+        // Validar senha em tempo real
+        if (id === 'password') {
+            validatePassword(value);
+        }
+    };
+
+    const validatePassword = (password: string) => {
+        const specialChars = /[!@#$%^&*(),.?":{}|<>]/;
+
+        if (password.length < 6) {
+            setPasswordError('A senha deve ter pelo menos 6 caracteres');
+        } else if (!specialChars.test(password)) {
+            setPasswordError('A senha deve conter pelo menos um caractere especial');
+        } else {
+            setPasswordError('');
+        }
     };
 
     const handleSubmit = () => {
-        alert(`Cadastro realizado com: ${formData.email}`);
+        // Verificar novamente antes de submeter
+        validatePassword(formData.password);
+
+        if (!passwordError) {
+            alert(`Cadastro realizado com: ${formData.email}`);
+        }
     };
 
     const isFormValid =
         formData.email.trim() !== '' &&
         formData.password.trim() !== '' &&
-        formData.acceptedTerms;
+        formData.acceptedTerms &&
+        !passwordError;
 
     return (
         <section className='flex w-full h-dvh px-4 sm:px-0'>
-            <div className='flex justify-center items-center sm:items-start flex-col sm:w-1/2 h-full sm:pl-44'>
-                <h2 className='text-7xl font-bold text-center' style={{fontFamily: '"Jersey 10"'}}>Faça seu cadastro</h2>
+            <div className='flex justify-center items-center sm:items-start flex-col sm:pr-4 sm:w-1/2 h-full sm:pl-44'>
+                <h2 className='text-7xl font-bold text-center sm:text-start' style={{fontFamily: '"Jersey 10"'}}>Faça seu cadastro</h2>
                 <p className='text-2xl leading-10'>Para proseguir para a plataforma!</p>
                 <p>Já tem uma conta? <Link to={"/Login"} className={"font-bold"}>Logue aqui</Link></p>
 
-                <div className='mt-10 w-full'>
+                <div className='mt-10'>
                     <Inputs
                         label='Email'
                         type='email'
@@ -43,14 +67,18 @@ const Cadastro = () => {
                         value={formData.email}
                         onChange={handleChange}
                     />
-                    <Inputs
-                        label='Senha'
-                        type='password'
-                        placeholder='Insira sua senha'
-                        id="password"
-                        value={formData.password}
-                        onChange={handleChange}
-                    />
+
+                    <div className={'w-full h-20'}>
+                        <Inputs
+                            label='Senha'
+                            type='password'
+                            placeholder='Insira sua senha (mínimo 6 caracteres com um especial)'
+                            id="password"
+                            value={formData.password}
+                            onChange={handleChange}
+                        />
+                        {passwordError && <p className="text-red-500 text-sm mt-1">{passwordError}</p>}
+                    </div>
 
                     <div className='mt-4'>
                         <input
