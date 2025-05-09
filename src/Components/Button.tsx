@@ -8,10 +8,10 @@ const Button = ({ title, onClick, disabled = false }: btnProps) => {
     return (
         <button
             className={`
-        w-[20rem] h-14 rounded-3xl cursor-pointer border-2
+        w-[20rem] h-14 rounded-3xl cursor-pointer border-2 font-bold text-white
         ${disabled
                 ? 'bg-gray-300 cursor-not-allowed border-transparent'
-                : 'bg-green-300 hover:border-blue-600 border-transparent'
+                : 'bg-green-300 hover:border-purple-400 border-transparent'
             }
       `}
             onClick={onClick}
