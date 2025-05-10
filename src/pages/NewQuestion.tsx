@@ -1,13 +1,15 @@
 import Inputs from "../Components/Inputs.tsx";
 import Button from "../Components/Button.tsx";
+import Header from "../Components/Header.tsx";
 
 const NewQuestion = () => {
     return (
         <section>
+            <Header/>
             <div className={"w-full h-dvh flex flex-col items-center justify-center"}>
                 <div>
-                    <h1>Nome do Quizz: {"Python"}</h1>
-                    <Inputs label={'Nome do Quizz'} type={'text'} placeholder={"Nome do Quizz"} value={"Python"} onChange={() => alert("zap")}/>
+                    <h1>Nome do Quizz: {"JavaScript"}</h1>
+                    <Inputs label={'Nome do Quizz'} type={'text'} placeholder={"Nome do Quizz"} value={"JavaScript"} onChange={() => alert("Questao")}/>
                 </div>
 
                 <div className={"py-6"}>
@@ -21,9 +23,9 @@ const NewQuestion = () => {
                         <Inputs label={'Altertiva 4'} type={'text'} placeholder={"Insira sua pergunta"} value={"2010"} onChange={() => alert("questao 4")}/>
                     </div>
 
-                    <div className={"flex gap-4"}>
+                    <div className={"flex flex-col items-center gap-4 pt-4"}>
                         <Button title={"Voltar"}/>
-                        <Button title={"Proxima"}/>
+                        <Button title={`Próxima ${1}/5`}/>
                     </div>
                 </div>
             </div>
