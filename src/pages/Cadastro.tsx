@@ -59,6 +59,16 @@ const Cadastro = () => {
                 <p>Já tem uma conta? <Link to={"/Login"} className={"font-bold"}>Logue aqui</Link></p>
 
                 <div className='mt-10'>
+
+                    <Inputs
+                        label='Nome'
+                        type='text'
+                        placeholder='Insira seu nome'
+                        id="nome"
+                        value={formData.email}
+                        onChange={handleChange}
+                    />
+
                     <Inputs
                         label='Email'
                         type='email'

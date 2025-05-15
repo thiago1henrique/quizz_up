@@ -1,29 +1,147 @@
+import { useState } from 'react';
 import Inputs from "../Components/Inputs.tsx";
 import Button from "../Components/Button.tsx";
+import Header from "../Components/Header.tsx";
+
+interface Question {
+    question: string;
+    options: string[];
+    correctAnswer: number;
+}
 
 const NewQuestion = () => {
+    const [quizName, setQuizName] = useState("JavaScript");
+    const [quizDescription, setQuizDescription] = useState(""); // Novo estado para a descrição
+    const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+    const [questions, setQuestions] = useState<Question[]>(
+        Array(5).fill({ question: "", options: ["", "", "", ""], correctAnswer: 0 })
+    );
+
+    // Dados da questão atual
+    const currentQuestion = questions[currentQuestionIndex];
+
+    const handleQuizNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setQuizName(e.target.value);
+    };
+
+    // Nova função para manipular a descrição
+    const handleQuizDescriptionChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setQuizDescription(e.target.value);
+    };
+
+    const handleQuestionChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const updatedQuestions = [...questions];
+        updatedQuestions[currentQuestionIndex] = {
+            ...updatedQuestions[currentQuestionIndex],
+            question: e.target.value
+        };
+        setQuestions(updatedQuestions);
+    };
+
+    const handleOptionChange = (index: number, value: string) => {
+        const updatedQuestions = [...questions];
+        updatedQuestions[currentQuestionIndex] = {
+            ...updatedQuestions[currentQuestionIndex],
+            options: [
+                ...updatedQuestions[currentQuestionIndex].options.slice(0, index),
+                value,
+                ...updatedQuestions[currentQuestionIndex].options.slice(index + 1)
+            ]
+        };
+        setQuestions(updatedQuestions);
+    };
+
+    const handleCorrectAnswerChange = (index: number, isChecked: boolean) => {
+        if (isChecked) {
+            const updatedQuestions = [...questions];
+            updatedQuestions[currentQuestionIndex] = {
+                ...updatedQuestions[currentQuestionIndex],
+                correctAnswer: index
+            };
+            setQuestions(updatedQuestions);
+        }
+    };
+
+    const handleNextQuestion = () => {
+        if (currentQuestionIndex < questions.length - 1) {
+            setCurrentQuestionIndex(prev => prev + 1);
+        } else {
+            console.log("Quiz completo:", {
+                quizName,
+                quizDescription, // Incluindo a descrição no log
+                questions
+            });
+            alert("Quiz completo! Verifique o console para ver os dados.");
+        }
+    };
+
+    const handlePreviousQuestion = () => {
+        setCurrentQuestionIndex(prev => Math.max(prev - 1, 0));
+    };
+
     return (
         <section>
-            <div className={"w-full h-dvh flex flex-col items-center justify-center"}>
+            <Header/>
+            <div className={"w-full h-dvh flex flex-col items-center justify-center px-4 sm:px-0 pt-[15rem] sm:pt-16"}>
                 <div>
-                    <h1>Nome do Quizz: {"Python"}</h1>
-                    <Inputs label={'Nome do Quizz'} type={'text'} placeholder={"Nome do Quizz"} value={"Python"} onChange={() => alert("zap")}/>
+                    <h1 className={"text-2xl sm:text-4xl font-bold"}>Nome do Quiz: {quizName}</h1>
+                    <Inputs
+                        label={'Nome do Quiz'}
+                        type={'text'}
+                        placeholder={"Nome do Quiz"}
+                        value={quizName}
+                        onChange={handleQuizNameChange}
+                    />
+
+                    <Inputs
+                        label={'Descrição do Quizz'}
+                        type={'text'}
+                        placeholder={"Descrição do Quizz"}
+                        value={quizDescription} // Conectando ao estado
+                        onChange={handleQuizDescriptionChange} // Usando a nova função
+                    />
                 </div>
 
                 <div className={"py-6"}>
-                    <h2>Questão {1}</h2>
-                    <Inputs label={'Insira sua pergunta'} type={'text'} placeholder={"Insira sua pergunta"} value={"Quando foi criado o JavaScript" + "?"} onChange={() => alert("zap")}/>
+                    <h2 className="text-2xl font-semibold">Questão {currentQuestionIndex + 1}/{questions.length}</h2>
+                    <Inputs
+                        label={'Insira sua pergunta'}
+                        type={'text'}
+                        placeholder={"Insira sua pergunta"}
+                        value={currentQuestion.question}
+                        onChange={handleQuestionChange}
+                    />
 
                     <div>
-                        <Inputs label={'Altertiva 1'} type={'text'} placeholder={"Insira sua pergunta"} value={"1995"} onChange={() => alert("questao 1")}/>
-                        <Inputs label={'Altertiva 2'} type={'text'} placeholder={"Insira sua pergunta"} value={"2004"} onChange={() => alert("questao 2")}/>
-                        <Inputs label={'Altertiva 3'} type={'text'} placeholder={"Insira sua pergunta"} value={"1993"} onChange={() => alert("questao 3")}/>
-                        <Inputs label={'Altertiva 4'} type={'text'} placeholder={"Insira sua pergunta"} value={"2010"} onChange={() => alert("questao 4")}/>
+                        {currentQuestion.options.map((option, index) => (
+                            <Inputs
+                                key={index}
+                                label={`Alternativa ${index + 1}`}
+                                type={'text'}
+                                placeholder={`Alternativa ${index + 1}`}
+                                value={option}
+                                onChange={(e) => handleOptionChange(index, e.target.value)}
+                                showCheckbox={true}
+                                isCorrect={currentQuestion.correctAnswer === index}
+                                onCheckboxChange={(checked) => handleCorrectAnswerChange(index, checked)}
+                            />
+                        ))}
                     </div>
 
-                    <div className={"flex gap-4"}>
-                        <Button title={"Voltar"}/>
-                        <Button title={"Proxima"}/>
+                    <div className={"flex flex-col items-center gap-4 pt-4"}>
+                        <Button
+                            title={"Voltar"}
+                            onClick={handlePreviousQuestion}
+                            disabled={currentQuestionIndex === 0}
+                        />
+                        <Button
+                            title={
+                                currentQuestionIndex < questions.length - 1
+                                    ? `Próxima Questão ${currentQuestionIndex + 1}/${questions.length}`
+                                    : "Finalizar Quiz"
+                            }
+                            onClick={handleNextQuestion}
+                        />
                     </div>
                 </div>
             </div>
