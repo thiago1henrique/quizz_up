@@ -1,7 +1,7 @@
 
 const Header = () => {
     return (
-        <header className={"flex justify-between items-center w-full h-20 bg-[#16161d] px-20 fixed"}>
+        <header className={"flex justify-between items-center w-full h-20 bg-[#16161d] px-4 sm:px-20 fixed z-20"}>
             <div>
                 <img src="../../public/logo.svg" alt="logo" className={"h-10 pointer-events-none"}/>
             </div>

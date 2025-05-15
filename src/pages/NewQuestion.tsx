@@ -11,6 +11,7 @@ interface Question {
 
 const NewQuestion = () => {
     const [quizName, setQuizName] = useState("JavaScript");
+    const [quizDescription, setQuizDescription] = useState(""); // Novo estado para a descrição
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
     const [questions, setQuestions] = useState<Question[]>(
         Array(5).fill({ question: "", options: ["", "", "", ""], correctAnswer: 0 })
@@ -21,6 +22,11 @@ const NewQuestion = () => {
 
     const handleQuizNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setQuizName(e.target.value);
+    };
+
+    // Nova função para manipular a descrição
+    const handleQuizDescriptionChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setQuizDescription(e.target.value);
     };
 
     const handleQuestionChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -60,7 +66,11 @@ const NewQuestion = () => {
         if (currentQuestionIndex < questions.length - 1) {
             setCurrentQuestionIndex(prev => prev + 1);
         } else {
-            console.log("Quiz completo:", { quizName, questions });
+            console.log("Quiz completo:", {
+                quizName,
+                quizDescription, // Incluindo a descrição no log
+                questions
+            });
             alert("Quiz completo! Verifique o console para ver os dados.");
         }
     };
@@ -72,15 +82,23 @@ const NewQuestion = () => {
     return (
         <section>
             <Header/>
-            <div className={"w-full h-dvh flex flex-col items-center justify-center"}>
+            <div className={"w-full h-dvh flex flex-col items-center justify-center px-4 sm:px-0 pt-[15rem] sm:pt-16"}>
                 <div>
-                    <h1 className={"text-4xl font-bold"}>Nome do Quiz: {quizName}</h1>
+                    <h1 className={"text-2xl sm:text-4xl font-bold"}>Nome do Quiz: {quizName}</h1>
                     <Inputs
                         label={'Nome do Quiz'}
                         type={'text'}
                         placeholder={"Nome do Quiz"}
                         value={quizName}
                         onChange={handleQuizNameChange}
+                    />
+
+                    <Inputs
+                        label={'Descrição do Quizz'}
+                        type={'text'}
+                        placeholder={"Descrição do Quizz"}
+                        value={quizDescription} // Conectando ao estado
+                        onChange={handleQuizDescriptionChange} // Usando a nova função
                     />
                 </div>
 
