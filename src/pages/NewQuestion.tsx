@@ -17,14 +17,14 @@ const NewQuestion = () => {
         Array(5).fill({ question: "", options: ["", "", "", ""], correctAnswer: 0 })
     );
 
-    // Dados da questão atual
+
     const currentQuestion = questions[currentQuestionIndex];
 
     const handleQuizNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setQuizName(e.target.value);
     };
 
-    // Nova função para manipular a descrição
+
     const handleQuizDescriptionChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setQuizDescription(e.target.value);
     };
@@ -97,8 +97,8 @@ const NewQuestion = () => {
                         label={'Descrição do Quizz'}
                         type={'text'}
                         placeholder={"Descrição do Quizz"}
-                        value={quizDescription} // Conectando ao estado
-                        onChange={handleQuizDescriptionChange} // Usando a nova função
+                        value={quizDescription}
+                        onChange={handleQuizDescriptionChange}
                     />
                 </div>
 
