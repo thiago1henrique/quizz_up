@@ -18,12 +18,10 @@ const Profile = () => {
             <Header />
 
             <div className="max-w-4xl mx-auto px-4 py-32">
-                {/* Seção de boas-vindas */}
                 <div className="mb-12 text-center">
                     <h1 className="text-4xl font-bold text-gray-800 mb-2">Olá, {studentName}!</h1>
                     <p className="text-lg text-gray-600">Acompanhe seu progresso e histórico de quizzes</p>
 
-                    {/* Estatísticas rápidas */}
                     <div className="flex justify-center gap-6 mt-6">
                         <div className="bg-white p-4 rounded-xl shadow-sm w-32 text-center">
                             <div className="text-3xl font-bold text-yellow-500">{quizHistory.length}</div>

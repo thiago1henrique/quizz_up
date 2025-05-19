@@ -6,11 +6,11 @@ interface CardHomeProps {
     cover: string;
     route: string;
     isAdmin?: boolean;
-    onEdit?: () => void;
+    //onEdit?: () => void;
     onDelete?: () => void;
 }
 
-const CardHome = ({ title, description, cover, route, isAdmin = false, onEdit, onDelete }: CardHomeProps) => {
+const CardHome = ({ title, description, cover, route, isAdmin = false, onDelete }: CardHomeProps) => {
     return (
         <div className="group relative h-full">
             <Link to={route}>
@@ -27,26 +27,24 @@ const CardHome = ({ title, description, cover, route, isAdmin = false, onEdit, o
 
             {isAdmin && (
                 <div className="absolute top-2 right-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    <button
-                        onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            onEdit?.();
-                        }}
-                        className="p-2 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition-colors"
-                        aria-label="Editar quiz"
-                    >
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                            <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
-                        </svg>
-                    </button>
+                    <Link to={"/newQuestion"}>
+                        <button
+                            className="p-2 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition-colors cursor-pointer"
+                            aria-label="Editar quiz"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                            </svg>
+                        </button>
+                    </Link>
+
                     <button
                         onClick={(e) => {
                             e.preventDefault();
                             e.stopPropagation();
                             onDelete?.();
                         }}
-                        className="p-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors"
+                        className="p-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors cursor-pointer"
                         aria-label="Excluir quiz"
                     >
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
