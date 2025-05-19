@@ -1,3 +1,4 @@
+import {Link} from "react-router-dom";
 
 const Header = () => {
     return (
@@ -7,9 +8,11 @@ const Header = () => {
             </div>
 
             <div className={"flex items-center gap-4"}>
-                <button className="bg-purple-400 rounded-full p-4 aspect-square flex justify-center items-center cursor-pointer">
-                    <img src="../../public/plus.svg" alt="adicionar pergunta" className={"h-4 pointer-events-none"}/>
-                </button>
+                <Link to={"/profile"}>
+                    <button className="bg-purple-400 rounded-full p-4 aspect-square flex justify-center items-center cursor-pointer">
+                        <img src="../../public/plus.svg" alt="adicionar pergunta" className={"h-4 pointer-events-none"}/>
+                    </button>
+                </Link>
                 <h2 className={"text-white font-bold"}>LogOut</h2>
             </div>
         </header>

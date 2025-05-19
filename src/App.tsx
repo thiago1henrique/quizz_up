@@ -8,6 +8,7 @@ import Login from "./pages/Login.tsx";
 import NewQuestion from "./pages/NewQuestion.tsx";
 import Menu from "./pages/Menu.tsx";
 import Quiz from "./pages/Quiz.tsx";
+import Profile from "./pages/Profile.tsx";
 
 
 function App() {
@@ -19,6 +20,7 @@ function App() {
             <Route path="/newQuestion" element={<NewQuestion />} />
             <Route path="/home" element={<Menu />} />
             <Route path="/quiz" element={<Quiz />} />
+            <Route path="/profile" element={<Profile />} />
             <Route path="*" element={<Navigate to="/" />} />
         </Routes>
     );
