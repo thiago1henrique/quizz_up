@@ -49,11 +49,7 @@ const Login = () => {
                     />
 
                     <div className='mt-10 flex justify-center sm:justify-start'>
-                        <Button
-                            title={'Login'}
-                            onClick={handleLogin}
-                            disabled={!isFormValid}
-                        />
+                        <Link to={"/home"}><Button title={'Login'} onClick={handleLogin} disabled={!isFormValid} /></Link>
                     </div>
                 </div>
             </div>
