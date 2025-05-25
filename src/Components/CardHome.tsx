@@ -1,35 +1,68 @@
 import { Link } from "react-router-dom";
 
+// Interface atualizada para incluir as props necessárias
 interface CardHomeProps {
     title: string;
     description: string;
-    cover: string;
-    route: string;
+    imageUrl?: string; // Usando imageUrl (opcional) em vez de 'cover'
+    quizId: number | string; // ID do Quiz para construir a rota
     isAdmin?: boolean;
-    //onEdit?: () => void;
-    onDelete?: () => void;
+    onDelete?: (quizId: number | string) => void; // Passa o ID para a função de delete
 }
 
-const CardHome = ({ title, description, cover, route, isAdmin = false, onDelete }: CardHomeProps) => {
+const CardHome = ({ title, description, imageUrl, quizId, isAdmin = false, onDelete }: CardHomeProps) => {
+
+    // Constrói a rota para jogar o quiz
+    const quizRoute = `/quiz/${quizId}`;
+    // Constrói a rota para editar o quiz (ajuste se sua rota for diferente)
+    const editRoute = `/edit-quiz/${quizId}`;
+
+    // Define uma imagem padrão caso 'imageUrl' não seja fornecida
+    const displayImage = imageUrl || "https://cdn-icons-png.flaticon.com/512/3409/3409310.png"; // Use um placeholder
+
+    // Handler para o botão de deletar, prevenindo navegação e chamando onDelete
+    const handleDeleteClick = (e: React.MouseEvent) => {
+        e.preventDefault(); // Impede a navegação do Link pai
+        e.stopPropagation(); // Impede outros eventos de clique
+        if (window.confirm(`Tem certeza que deseja excluir o quiz "${title}"?`)) {
+            onDelete?.(quizId); // Chama a função passando o ID
+        }
+    };
+
     return (
-        <div className="group relative h-full">
-            <Link to={route}>
-                <div className="h-full bg-white rounded-xl shadow-md overflow-hidden transition-all duration-300 group-hover:shadow-lg group-hover:-translate-y-1 border border-gray-100">
-                    <div className="p-6 flex flex-col items-center">
-                        <div className="mb-4 p-4 bg-yellow-50 rounded-full">
-                            <img className="w-20 h-20 object-contain" src={cover} alt={title} />
-                        </div>
-                        <h3 className="text-xl font-semibold text-gray-800 mb-2">{title}</h3>
-                        <p className="text-gray-600 text-center">{description}</p>
+        <div className="group relative h-full w-full sm:w-[300px]"> {/* Adicionado w-full e sm:w-[300px] */}
+            {/* Link principal para jogar o quiz */}
+            <Link to={quizRoute}>
+                <div className="h-full bg-white rounded-xl shadow-md overflow-hidden transition-all duration-300 group-hover:shadow-lg group-hover:-translate-y-1 border border-gray-100 flex flex-col"> {/* Adicionado flex flex-col */}
+                    {/* Imagem do Card */}
+                    <div className="w-full bg-gray-100 flex items-center justify-center overflow-hidden pt-4">
+                        <img
+                            className="w-[50px] h-[50px] object-cover"
+                            src={displayImage}
+                            alt={title}
+                        />
+                    </div>
+
+                    <div className="p-6 flex flex-col items-center flex-grow">
+                        <h3 className="text-xl font-semibold text-gray-800 mb-2 text-center">{title}</h3>
+                        <p className="text-gray-600 text-center text-sm flex-grow">{description}</p>
+                        <span
+                            className="mt-4 inline-block px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700 transition-colors"
+                        >
+                            Iniciar Quiz
+                        </span>
                     </div>
                 </div>
             </Link>
 
+            {/* Botões de Admin (Editar/Excluir) */}
             {isAdmin && (
                 <div className="absolute top-2 right-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    <Link to={"/newQuestion"}>
+                    {/* Botão Editar */}
+                    <Link to={editRoute}> {/* Link para a rota de edição */}
                         <button
-                            className="p-2 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition-colors cursor-pointer"
+                            onClick={(e) => e.stopPropagation()} // Impede o link pai de ser acionado
+                            className="p-2 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition-colors cursor-pointer shadow-md"
                             aria-label="Editar quiz"
                         >
                             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -38,13 +71,10 @@ const CardHome = ({ title, description, cover, route, isAdmin = false, onDelete 
                         </button>
                     </Link>
 
+                    {/* Botão Excluir */}
                     <button
-                        onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            onDelete?.();
-                        }}
-                        className="p-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors cursor-pointer"
+                        onClick={handleDeleteClick}
+                        className="p-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors cursor-pointer shadow-md"
                         aria-label="Excluir quiz"
                     >
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">

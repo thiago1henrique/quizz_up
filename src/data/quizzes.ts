@@ -1,3 +1,4 @@
+/*
 export interface ProgrammingLanguage {
   image: string;
   title: string;
@@ -76,3 +77,4 @@ export const programmingLanguages = [
       'Uma linguagem de script do lado do servidor amplamente utilizada para desenvolvimento web. 🐘',
   },
 ];
+*/

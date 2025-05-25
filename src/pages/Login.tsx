@@ -1,24 +1,49 @@
 import { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import Inputs from "../Components/Inputs.tsx";
 import Button from "../Components/Button.tsx";
-import {Link} from "react-router-dom";
 
 const Login = () => {
     const [formData, setFormData] = useState({
         email: '',
         password: ''
     });
+    const [error, setError] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
+    const navigate = useNavigate();
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { id, value } = e.target;
-        setFormData(prev => ({
-            ...prev,
-            [id]: value
-        }));
+        setFormData(prev => ({ ...prev, [id]: value }));
+        setError(''); // Limpa erros ao digitar
     };
 
-    const handleLogin = () => {
-        alert('Login realizado com: ' + formData.email);
+    const handleLogin = async () => {
+        if (!isFormValid) return;
+
+        setIsLoading(true);
+        try {
+            const response = await fetch('http://localhost:3000/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(formData)
+            });
+
+            if (!response.ok) {
+                throw new Error('Credenciais inválidas');
+            }
+
+            const userData = await response.json();
+
+            // Armazena os dados do usuário (EM PRODUÇÃO, USE CONTEXT/STORAGE SEGURO)
+            localStorage.setItem('user', JSON.stringify(userData));
+
+            navigate('/home');
+        } catch (error) {
+            setError(error instanceof Error ? error.message : 'Ocorreu um erro desconhecido');
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     const isFormValid = formData.email.trim() !== '' && formData.password.trim() !== '';
@@ -31,6 +56,8 @@ const Login = () => {
                 <p>Não tem uma conta? <Link to={"/Cadastro"} className={"font-bold"}>Crie uma</Link></p>
 
                 <div className='mt-10'>
+                    {error && <p className="text-red-500 mb-4">{error}</p>}
+
                     <Inputs
                         id="email"
                         label='Email'
@@ -49,7 +76,11 @@ const Login = () => {
                     />
 
                     <div className='mt-10 flex justify-center sm:justify-start'>
-                        <Link to={"/home"}><Button title={'Login'} onClick={handleLogin} disabled={!isFormValid} /></Link>
+                        <Button
+                            title={isLoading ? 'Carregando...' : 'Login'}
+                            onClick={handleLogin}
+                            disabled={!isFormValid || isLoading}
+                        />
                     </div>
                 </div>
             </div>

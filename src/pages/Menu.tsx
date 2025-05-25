@@ -1,34 +1,83 @@
-import '../App.css';
+import { useState, useEffect } from 'react';
 import Header from "../Components/Header.tsx";
 import CardHome from "../Components/CardHome.tsx";
-// 1. Importe o array do seu arquivo de dados
-import { programmingLanguages } from '../data/quizzes.ts'; // <<< Atualize o caminho se necessário
 
-function Menu() {
-    return (
-        <div className="min-h-screen ">
-            <Header/>
-            <section className="py-32 px-4 sm:px-6 lg:px-8">
-                <div className="max-w-7xl mx-auto">
-                    <h1 className="text-3xl font-bold text-center text-gray-800 mb-12">Escolha seu Quiz</h1>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                        {/* 2. Use o map para renderizar os cards dinamicamente */}
-                        {programmingLanguages.map((language) => (
-                            <CardHome
-                                key={language.title} // 3. Use uma chave única (title é uma opção)
-                                route={"/quiz"} // Defina a rota como desejar
-                                title={language.title} // Passe o título
-                                cover={language.image} // Passe a URL da imagem (cover)
-                                description={language.description} // Passe a descrição
-                                // isAdmin={false} // Adicione se necessário, talvez com base em alguma lógica
-                            />
-                        ))}
-                    </div>
-                </div>
-            </section>
-        </div>
-    )
+interface Quiz {
+    id: number;
+    title: string;
+    description: string;
+    logo?: string;
 }
 
-export default Menu;
+const Home = () => {
+    const [quizzes, setQuizzes] = useState<Quiz[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState('');
+
+    useEffect(() => {
+        const fetchQuizzes = async () => {
+            try {
+                const response = await fetch('http://localhost:3000/quizzes');
+
+                if (!response.ok) {
+                    throw new Error('Erro ao carregar quizzes');
+                }
+
+                const data = await response.json();
+                setQuizzes(data);
+            } catch (err) {
+                // @ts-ignore
+                setError(err.message);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchQuizzes();
+    }, []);
+
+    if (loading) {
+        return (
+            <>
+                <Header />
+                <div className="w-full min-h-dvh flex items-center justify-center">
+                    <p>Carregando quizzes...</p>
+                </div>
+            </>
+        );
+    }
+
+    if (error) {
+        return (
+            <>
+                <Header />
+                <div className="w-full min-h-dvh flex items-center justify-center">
+                    <p className="text-red-500">{error}</p>
+                </div>
+            </>
+        );
+    }
+
+    return (
+        <>
+            <Header />
+            <div className="w-full min-h-dvh flex flex-wrap items-center justify-center gap-4 md:gap-8 p-4 pt-28 max-w-[1200px] mx-auto">
+                {quizzes.length > 0 ? (
+                    quizzes.map(quiz => (
+                        <CardHome
+                            key={quiz.id}
+                            title={quiz.title}
+                            description={quiz.description}
+                            imageUrl={quiz.logo ? `http://localhost:3000/uploads/logos/${quiz.logo}` : undefined}
+                            quizId={quiz.id}
+                        />
+                    ))
+                ) : (
+                    <p>Nenhum quiz disponível no momento.</p>
+                )}
+            </div>
+        </>
+    );
+};
+
+export default Home;

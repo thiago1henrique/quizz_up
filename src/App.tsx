@@ -6,7 +6,7 @@ import Cadastro from "./pages/Cadastro.tsx";
 import Splash from "./pages/Splash.tsx";
 import Login from "./pages/Login.tsx";
 import NewQuestion from "./pages/NewQuestion.tsx";
-import Menu from "./pages/Menu.tsx";
+import Menu from "./pages/Menu.tsx"; // Assumindo que Menu é sua página Home
 import Quiz from "./pages/Quiz.tsx";
 import Profile from "./pages/Profile.tsx";
 
@@ -19,8 +19,13 @@ function App() {
             <Route path="/cadastro" element={<Cadastro />} />
             <Route path="/newQuestion" element={<NewQuestion />} />
             <Route path="/home" element={<Menu />} />
-            <Route path="/quiz" element={<Quiz />} />
+
+            {/* ROTA CORRIGIDA ABAIXO */}
+            <Route path="/quiz/:id" element={<Quiz />} />
+
             <Route path="/profile" element={<Profile />} />
+
+            {/* Rota '*' redireciona qualquer URL não encontrada para a raiz */}
             <Route path="*" element={<Navigate to="/" />} />
         </Routes>
     );
