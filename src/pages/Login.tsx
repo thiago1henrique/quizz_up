@@ -15,13 +15,15 @@ const Login = () => {
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { id, value } = e.target;
         setFormData(prev => ({ ...prev, [id]: value }));
-        setError(''); // Limpa erros ao digitar
+        setError('');
     };
 
     const handleLogin = async () => {
         if (!isFormValid) return;
 
         setIsLoading(true);
+        setError(''); // Limpa erros antes de tentar de novo
+
         try {
             const response = await fetch('http://localhost:3000/auth/login', {
                 method: 'POST',
@@ -29,18 +31,36 @@ const Login = () => {
                 body: JSON.stringify(formData)
             });
 
+            const responseData = await response.json(); // Pega a resposta completa
+
             if (!response.ok) {
-                throw new Error('Credenciais inválidas');
+                // Tenta usar a mensagem do backend, senão usa uma padrão
+                throw new Error(responseData.message || 'Credenciais inválidas');
             }
 
-            const userData = await response.json();
+            // --- CORREÇÃO AQUI ---
+            // Verifica se o access_token foi retornado
+            if (responseData.access_token) {
+                // SALVA O TOKEN NO LOCALSTORAGE
+                localStorage.setItem('token', responseData.access_token);
 
-            // Armazena os dados do usuário (EM PRODUÇÃO, USE CONTEXT/STORAGE SEGURO)
-            localStorage.setItem('user', JSON.stringify(userData));
+                // SALVA O USUÁRIO (se o backend retornar)
+                // Se o backend retorna { access_token, user: {...} } use responseData.user
+                // Se o backend retorna só o token, você pode salvar a resposta toda
+                // ou apenas o token e deixar Profile buscar o user.
+                // Mas como Profile espera 'user', é melhor salvar algo.
+                localStorage.setItem('user', JSON.stringify(responseData.user || responseData));
 
-            navigate('/home');
-        } catch (error) {
-            setError(error instanceof Error ? error.message : 'Ocorreu um erro desconhecido');
+                // NAVEGA PARA A HOME
+                navigate('/home');
+            } else {
+                // Se o backend não retornou o token, algo está errado
+                throw new Error('Token de acesso não recebido do servidor.');
+            }
+            // --- FIM DA CORREÇÃO ---
+
+        } catch (error: any) { // Use 'any' ou crie um tipo mais específico
+            setError(error.message || 'Ocorreu um erro desconhecido');
         } finally {
             setIsLoading(false);
         }
@@ -55,8 +75,8 @@ const Login = () => {
                 <p className='text-2xl leading-10'>Para proseguir para a plataforma!</p>
                 <p>Não tem uma conta? <Link to={"/Cadastro"} className={"font-bold"}>Crie uma</Link></p>
 
-                <div className='mt-10'>
-                    {error && <p className="text-red-500 mb-4">{error}</p>}
+                <div className='mt-10 w-full max-w-sm'> {/* Adicionado width para alinhar erro */}
+                    {error && <p className="text-red-500 mb-4 bg-red-100 p-3 rounded">{error}</p>}
 
                     <Inputs
                         id="email"
