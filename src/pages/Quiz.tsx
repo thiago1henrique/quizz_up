@@ -1,87 +1,84 @@
 import { useState, useEffect, useRef } from 'react';
-import { useParams, Link } from 'react-router-dom'; // Importa useParams
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import confetti from 'canvas-confetti';
 import Header from "../Components/Header.tsx";
 
-// Interface para o formato de dados que a UI espera
 interface QuestionUI {
   question: string;
   options: { key: string; label: string }[];
   correct: string;
 }
 
-// Interface para os dados crus que vêm do backend
 interface QuizDataBackend {
   id: number;
   title: string;
   description: string;
+  logo?: string; // Adicionado para podermos usar ao salvar o resultado
   questions: {
     title: string;
-    alternatives: { text: string; isCorrect: boolean }[]; // <-- Nota: 'isCorrect'
+    alternatives: { text: string; isCorrect: boolean }[];
   }[];
 }
 
 const Quiz = () => {
-  const { id } = useParams<{ id: string }>(); // Pega o ID da URL
+  const { id: quizIdParam } = useParams<{ id: string }>(); // Renomeado para evitar conflito com quizId de attemptData
+  const navigate = useNavigate(); // Adicionado para redirecionamento
 
-  // --- Estados ---
-  const [quizTitle, setQuizTitle] = useState(''); // Estado para o título
-  const [questions, setQuestions] = useState<QuestionUI[]>([]); // Estado para as questões formatadas
+  const [quizData, setQuizData] = useState<QuizDataBackend | null>(null); // Para dados completos do quiz
+  const [quizTitle, setQuizTitle] = useState('');
+  const [questions, setQuestions] = useState<QuestionUI[]>([]);
   const [current, setCurrent] = useState(0);
   const [selected, setSelected] = useState<string | null>(null);
   const [score, setScore] = useState(0);
   const [timeLeft, setTimeLeft] = useState(60);
   const [showResult, setShowResult] = useState(false);
-  const [loading, setLoading] = useState(true); // Estado de Carregamento
-  const [error, setError] = useState('');     // Estado de Erro
-  const hasFired = useRef(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [saveError, setSaveError] = useState(''); // Erro específico para salvar resultado
+  const hasFiredConfetti = useRef(false); // Renomeado para clareza
 
-  // --- useEffect para buscar e transformar os dados ---
   useEffect(() => {
     const fetchQuiz = async () => {
+      if (!quizIdParam) {
+        setError("ID do Quiz não fornecido.");
+        setLoading(false);
+        return;
+      }
       setLoading(true);
       setError('');
+      setSaveError('');
       try {
-        const response = await fetch(`http://localhost:3000/quizzes/${id}`); // Busca pelo ID
-
+        const response = await fetch(`http://localhost:3000/quizzes/${quizIdParam}`);
         if (!response.ok) {
           throw new Error('Quiz não encontrado ou erro no servidor.');
         }
-
         const data: QuizDataBackend = await response.json();
-
-        // Transforma os dados do backend para o formato da UI
+        setQuizData(data); // Salva todos os dados do quiz
+        setQuizTitle(data.title);
         const formattedQuestions: QuestionUI[] = data.questions.map(q => {
           const correctIndex = q.alternatives.findIndex(alt => alt.isCorrect);
           return {
             question: q.title,
             options: q.alternatives.map((alt, index) => ({
-              key: String.fromCharCode(65 + index), // Gera A, B, C, D...
+              key: String.fromCharCode(65 + index),
               label: alt.text
             })),
-            correct: String.fromCharCode(65 + correctIndex) // Pega a letra (A, B, C...) da correta
+            correct: String.fromCharCode(65 + correctIndex)
           };
         });
-
-        setQuizTitle(data.title); // Salva o título
-        setQuestions(formattedQuestions); // Salva as questões formatadas
-
+        setQuestions(formattedQuestions);
       } catch (err: any) {
         setError(err.message || "Ocorreu um erro ao carregar o quiz.");
       } finally {
         setLoading(false);
       }
     };
-
     fetchQuiz();
-  }, [id]); // Roda sempre que o ID mudar
+  }, [quizIdParam]);
 
-  // --- Handlers (praticamente os mesmos, mas precisam de 'questions' carregado) ---
-
-  // Garantir que 'question' só seja acessado se 'questions' tiver dados
   const question = questions.length > 0 ? questions[current] : null;
 
-  const handleNext = () => {
+  const handleNextLogic = () => { // Lógica separada para ser usada pelo timer e botão
     setSelected(null);
     if (current < questions.length - 1) {
       setCurrent(current + 1);
@@ -91,32 +88,27 @@ const Quiz = () => {
     }
   };
 
-  // --- useEffect para o Timer (precisa esperar 'questions' carregar) ---
-  useEffect(() => {
-    // Só roda se houver questões e o resultado não estiver sendo mostrado
-    if (loading || showResult || questions.length === 0) {
-      return;
-    }
+  const handleNext = handleNextLogic; // Atribui para o botão
 
+  useEffect(() => {
+    if (loading || showResult || questions.length === 0) return;
     const timer = setInterval(() => {
       setTimeLeft(prev => {
         if (prev <= 1) {
-          handleNext(); // Cuidado: Se handleNext não for estável, pode causar re-renders.
-                        // Para este caso, deve funcionar, mas é bom ter em mente.
+          handleNextLogic(); // Chama a lógica separada
           return 60;
         }
         return prev - 1;
       });
     }, 1000);
-
     return () => clearInterval(timer);
-  }, [current, loading, showResult, questions.length]); // Depende de current, loading, showResult e questions
+  }, [current, loading, showResult, questions.length]);
 
   const handleSelect = (key: string) => {
-    if (!question) return; // Segurança extra
+    if (!question || selected) return;
     setSelected(key);
     if (key === question.correct) {
-      setScore(score + 1);
+      setScore(prevScore => prevScore + 1);
     }
   };
 
@@ -128,19 +120,74 @@ const Quiz = () => {
     }
   };
 
-  // --- useEffect para Confetti ---
-  useEffect(() => {
-    if (showResult && !hasFired.current) {
-      hasFired.current = true;
-      confetti({
-        particleCount: 150,
-        spread: 100,
-        origin: { y: 0.6 }
+  const saveQuizResult = async () => {
+    const token = localStorage.getItem('token');
+    const userString = localStorage.getItem('user');
+
+    if (!token || !userString) {
+      setSaveError("Você precisa estar logado para salvar seu resultado.");
+      navigate('/login'); // Opcional: redirecionar para login
+      return;
+    }
+    if (!quizData || !quizIdParam) {
+      setSaveError("Dados do quiz não encontrados para salvar o resultado.");
+      return;
+    }
+
+    let loggedInUser;
+    try {
+      loggedInUser = JSON.parse(userString);
+    } catch (e) {
+      console.error("Erro ao parsear usuário do localStorage", e);
+      setSaveError("Erro ao processar dados do usuário.");
+      return;
+    }
+
+    if (!loggedInUser || !loggedInUser.id) {
+      setSaveError("ID do usuário não encontrado para salvar resultado.");
+      return;
+    }
+
+    const attemptData = {
+      userId: loggedInUser.id,
+      quizId: parseInt(quizIdParam, 10),
+      score: score,
+      total: questions.length, // O backend espera 'total' (ou totalQuestions, ajuste conforme seu DTO)
+      quizTitle: quizData.title,
+      quizLogo: quizData.logo || null, // Passa o logo se existir
+    };
+
+    try {
+      setSaveError(''); // Limpa erro anterior
+      const response = await fetch('http://localhost:3000/quizzes/save-result', { // Ou /quiz-attempts
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(attemptData),
       });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || 'Falha ao salvar o resultado do quiz.');
+      }
+      console.log("Resultado do quiz salvo com sucesso!");
+      // Você pode querer dar um feedback de sucesso aqui
+    } catch (err: any) {
+      console.error("Erro ao salvar resultado do quiz:", err);
+      setSaveError("Não foi possível salvar seu resultado: " + err.message);
+    }
+  };
+
+  useEffect(() => {
+    if (showResult && !hasFiredConfetti.current) {
+      hasFiredConfetti.current = true;
+      confetti({ particleCount: 150, spread: 100, origin: { y: 0.6 } });
+      saveQuizResult(); // Chama a função para salvar o resultado
     }
   }, [showResult]);
 
-  // --- Renderização Condicional (Loading, Erro) ---
 
   if (loading) {
     return (
@@ -148,7 +195,6 @@ const Quiz = () => {
           <Header />
           <div className="flex flex-col items-center justify-center min-h-screen">
             <p className="text-2xl text-gray-600">Carregando quiz...</p>
-            {/* Pode adicionar um spinner aqui */}
           </div>
         </>
     );
@@ -168,13 +214,12 @@ const Quiz = () => {
     );
   }
 
-  // Se não há questões (mesmo sem erro/loading), algo deu errado.
-  if (!question) {
+  if (!question && !loading) {
     return (
         <>
           <Header />
           <div className="flex flex-col items-center justify-center min-h-screen text-center p-4">
-            <p className="text-2xl text-gray-600 mb-4">Não foi possível carregar as questões deste quiz.</p>
+            <p className="text-2xl text-gray-600 mb-4">Não foi possível carregar as questões deste quiz ou quiz inválido.</p>
             <Link to="/home" className="px-6 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
               Voltar para Home
             </Link>
@@ -182,17 +227,16 @@ const Quiz = () => {
         </>
     );
   }
+  if (!question) return null; // Segurança adicional
 
-  // --- Renderização Principal (UI do Quiz) ---
   return (
       <>
         <Header />
         {showResult ? (
-            // --- Tela de Resultado ---
             <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-b from-yellow-50 to-white text-center p-8">
               <div className="max-w-md w-full bg-white rounded-xl shadow-lg p-8">
                 <h1 className="text-4xl md:text-5xl font-bold text-yellow-500 mb-6">🎉 Quiz Finalizado!</h1>
-                <h2 className="text-2xl font-semibold text-gray-700 mb-4">{quizTitle}</h2> {/* Mostra o título */}
+                <h2 className="text-2xl font-semibold text-gray-700 mb-4">{quizTitle}</h2>
                 <div className="relative mb-8">
                   <div className="absolute inset-0 flex items-center justify-center">
                     <div className="w-64 h-64 rounded-full bg-yellow-100 opacity-30"></div>
@@ -201,6 +245,7 @@ const Quiz = () => {
                     {score}<span className="text-3xl md:text-5xl text-gray-500">/{questions.length}</span>
                   </div>
                 </div>
+                {saveError && <p className="text-red-500 mb-4">{saveError}</p>}
                 <p className="text-xl text-gray-600 mb-8">
                   {score > questions.length / 2 ? 'Ótimo trabalho!' : 'Continue praticando!'}
                 </p>
@@ -213,10 +258,9 @@ const Quiz = () => {
               </div>
             </div>
         ) : (
-            // --- Tela do Quiz ---
             <div className="min-h-screen bg-gradient-to-b from-yellow-50 to-white flex flex-col items-center p-6 pt-44">
               <div className="w-full max-w-4xl mb-8">
-                <h1 className="text-3xl font-bold text-gray-800 mb-4 text-center">{quizTitle}</h1> {/* Mostra o título */}
+                <h1 className="text-3xl font-bold text-gray-800 mb-4 text-center">{quizTitle}</h1>
                 <h2 className="text-xl font-bold text-gray-800 mb-2">Questão {current + 1} de {questions.length}</h2>
                 <div className="w-full bg-gray-200 rounded-full h-3 mb-6">
                   <div
@@ -252,12 +296,12 @@ const Quiz = () => {
                     <button
                         key={key}
                         onClick={() => handleSelect(key)}
-                        disabled={!!selected} // Desabilita após selecionar
+                        disabled={!!selected}
                         className={`p-6 rounded-xl text-lg font-medium text-left transition-all transform hover:scale-[1.02] disabled:opacity-70 disabled:cursor-not-allowed ${
                             selected === key
-                                ? (key === question.correct ? 'bg-green-400' : 'bg-red-400') + ' text-white shadow-md border-2' // Mostra certo/errado
+                                ? (key === question.correct ? 'bg-green-400' : 'bg-red-400') + ' text-white shadow-md border-2'
                                 : selected && key === question.correct
-                                    ? 'bg-green-400 text-white shadow-md border-2' // Mostra a correta se errou
+                                    ? 'bg-green-400 text-white shadow-md border-2'
                                     : 'bg-white text-gray-800 shadow-sm hover:shadow-md border-2 border-gray-100'
                         }`}
                     >
@@ -281,7 +325,7 @@ const Quiz = () => {
                             : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                     }`}
                     onClick={handlePrev}
-                    disabled={current === 0 || !!selected} // Desabilita se selecionado
+                    disabled={current === 0 || !!selected}
                 >
                   <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -310,5 +354,4 @@ const Quiz = () => {
       </>
   );
 };
-
 export default Quiz;
