@@ -1,6 +1,8 @@
 import '../App.css';
 import Header from "../Components/Header.tsx";
 import CardHome from "../Components/CardHome.tsx";
+// 1. Importe o array do seu arquivo de dados
+import { programmingLanguages } from '../data/quizzes.ts'; // <<< Atualize o caminho se necessário
 
 function Menu() {
     return (
@@ -11,16 +13,22 @@ function Menu() {
                     <h1 className="text-3xl font-bold text-center text-gray-800 mb-12">Escolha seu Quiz</h1>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                        <CardHome isAdmin={true} route={"/quiz"} title={"Javascript"} cover={"https://upload.wikimedia.org/wikipedia/commons/thumb/9/99/Unofficial_JavaScript_logo_2.svg/2048px-Unofficial_JavaScript_logo_2.svg.png"} description={"Lorem ipsum dolor sit amet, consectetur adipiscing elit."} />
-                        <CardHome route={"/quiz"} title={"Java"} cover={"https://seeklogo.com/images/J/java-logo-7833D1D21A-seeklogo.com.png"} description={"Lorem ipsum dolor sit amet, consectetur adipiscing elit."} />
-                        <CardHome route={"/quiz"} title={"Python"} cover={"https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Python-logo-notext.svg/1869px-Python-logo-notext.svg.png"} description={"Lorem ipsum dolor sit amet, consectetur adipiscing elit."} />
-                        <CardHome route={"/quiz"} title={"Banco de dados"} cover={"https://w7.pngwing.com/pngs/589/216/png-transparent-database-computer-icons-others-miscellaneous-company-text.png"} description={"Lorem ipsum dolor sit amet, consectetur adipiscing elit."} />
-                        <CardHome route={"/quiz"} title={"HTML"} cover={"https://upload.wikimedia.org/wikipedia/commons/thumb/6/61/HTML5_logo_and_wordmark.svg/640px-HTML5_logo_and_wordmark.svg.png"} description={"Lorem ipsum dolor sit amet, consectetur adipiscing elit."} />
-                        <CardHome route={"/quiz"} title={"CSS"} cover={"https://images.seeklogo.com/logo-png/18/1/css3-logo-png_seeklogo-186678.png"} description={"Lorem ipsum dolor sit amet, consectetur adipiscing elit."} />
+                        {/* 2. Use o map para renderizar os cards dinamicamente */}
+                        {programmingLanguages.map((language) => (
+                            <CardHome
+                                key={language.title} // 3. Use uma chave única (title é uma opção)
+                                route={"/quiz"} // Defina a rota como desejar
+                                title={language.title} // Passe o título
+                                cover={language.image} // Passe a URL da imagem (cover)
+                                description={language.description} // Passe a descrição
+                                // isAdmin={false} // Adicione se necessário, talvez com base em alguma lógica
+                            />
+                        ))}
                     </div>
                 </div>
             </section>
         </div>
     )
 }
+
 export default Menu;
